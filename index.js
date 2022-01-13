@@ -1,7 +1,11 @@
 const express = require('express')
-
+const argon2 = require('argon2')
 const app = express();
+
 app.use(express.json())
+
+const port = process.env.PORT || 9000;
+
 const users = [
     {
         id:Date.now(),
@@ -25,8 +29,9 @@ app.get('/api/users',(req,res) => {
     res.json({users})
 })
 
-app.post('/api/register',(req,res) => {
-    const newUser = {id:Date.now(),username:req.body.username}
+app.post('/api/register', async(req,res) => {
+    const securePassword = await argon2.hash(req.body.password)
+    const newUser = {id:Date.now(),username:req.body.username, password:securePassword}
     users.push(newUser)
     res.json({users})
 })
@@ -42,6 +47,6 @@ app.post('/api/login',(req,res) => {
 
 })
 
-app.listen(9000,() => {
-    console.log('magic happening at port 9000')
+app.listen(port,() => {
+    console.log(`magic happening at port ${port}`)
 })
